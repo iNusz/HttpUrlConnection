@@ -91,7 +91,10 @@ getData의 경우 네트워크라서 서브쓰레드에서 강제로 돌려야�
 
 
 ```
-여기서 예외처리를 throw를 해준 이유는 앱마다 UI가 다를텐데 , 예외가 생기면 어떤곳은 토스트로 띄워주는데가있고 어떤데는 팝업으로 띄워주는데가 있을것이다.
+여기서 예외처리를 throw를 해준 이유는 앱마다 UI가 다를텐데 ,
+
+
+예외가 생기면 어떤곳은 토스트로 띄워주는데가있고 어떤데는 팝업으로 띄워주는데가 있을것이다.
 
 
 따라서 결과값을 받아서 해당 UI단에서 처리를 해준다. 에러를 호출 한 측에서 넘겨 받는데 Maincode에서 결정을 해준다.
@@ -160,7 +163,8 @@ public String getData(String url) throws Exception {
 
             // 2.3 오류에 대한 응답처리
         } else {
-            // todo 각자 호출측으로 Exception을 만들어서 넘겨줄것 ~ / 이부분은 강제로 예외를 발생 , throw로 네트워크~오류가있다고 상위로넘겨줘야함
+            // todo 각자 호출측으로 Exception을 만들어서 넘겨줄것 ~
+            // 이부분은 강제로 예외를 발생 , throw로 네트워크~오류가있다고 상위로넘겨줘야함
             // 아래로그로 확인하자, 에러코드를 상단으로 넘기자
             Log.e("Network", "error_code=" + responseCode);
         }
@@ -272,16 +276,16 @@ TextView로 값을 받아와 화면에 출력
 
 
 
-![console_1.png]()
+![console_1.png](https://github.com/iNusz/HttpUrlConnection/blob/master/app/src/main/res/mipmap-xxhdpi/console_1.png)
 
 
 
 
 
-![console_2.png]()
+![console_2.png](https://github.com/iNusz/HttpUrlConnection/blob/master/app/src/main/res/mipmap-xxhdpi/console_2.png)
 
 
 
 
 
-![emul.png]()
+![emul.png](https://github.com/iNusz/HttpUrlConnection/blob/master/app/src/main/res/mipmap-xxhdpi/emul.png)
