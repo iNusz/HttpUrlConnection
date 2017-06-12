@@ -143,6 +143,7 @@ public String getData(String url) throws Exception {
 
 
 
+
 ```java
         // 2.1 응답코드 분석
         int responseCode = con.getResponseCode();
@@ -175,6 +176,112 @@ public String getData(String url) throws Exception {
 
 
 
+
+## Interface
+
+
+
+인터페이스를 활용하면 재사용성을 증가 시킬 수 있다.
+
+
+
+
+```java
+public interface TaskInterface {
+
+    public String getUrl();
+    public void resultExecute(String result);
+
+}
+```
+
+
+
+<br/>
+
+
+
+
+기존에 있던 newTask를 url을 받는것이 아니라 인터페이스를 받아서 구현한다.
+
+
+
+```java
+public static void newTask(final TaskInterface taskInterface) {
+
+
+
+          ...---skip---...
+
+          @Override
+            protected void onPostExecute(String result) {
+                // 값을 화면에 출력한다
+                taskInterface.resultExecute(result);
+            }
+
+        }.execute(taskInterface.getUrl());
+
+}
+```
+
+
+
+
+<br/>
+
+
+
+
+메인에서는 implement로 interface를 받아 Override시킨다.
+
+```java
+public class MainActivity extends AppCompatActivity implements TaskInterface{
+
+
+            ...---skip---...
+
+
+    // 인터페이스 사용
+    @Override
+    public String getUrl(){
+    return url;
+    }
+
+    @Override
+    public void resultExecute(String result){
+    textView.setText(result);
+    }
+
+}
+```
+
+
+
 ## Android Emulator
 
+
+
+
 Thread안에서 HttpUrlConnection을 통해서 서버에 접속해 데이터를 가져오고 가져온 데이터를 로그로 출력
+
+
+
+TextView로 값을 받아와 화면에 출력
+
+
+
+
+
+![console_1.png]()
+
+
+
+
+
+![console_2.png]()
+
+
+
+
+
+![emul.png]()
