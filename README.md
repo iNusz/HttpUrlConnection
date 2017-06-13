@@ -210,6 +210,16 @@ public interface TaskInterface {
 
 
 
+여기서 final이 쓰이는 이유는 이너클래스에서는 final이 아니면 지역변수를 바로 못쓴다.
+
+
+
+new 를해줘서 이너 클래스를 만들어줬는데 이너클래스에서 인터페이스의 메소드를 호출할 때는 final을 붙여줘야한다
+
+
+
+
+
 ```java
 public static void newTask(final TaskInterface taskInterface) {
 

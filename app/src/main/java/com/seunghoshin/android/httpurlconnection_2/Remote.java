@@ -1,5 +1,6 @@
 package com.seunghoshin.android.httpurlconnection_2;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -12,6 +13,52 @@ import java.net.URL;
  */
 
 public class Remote {
+
+
+    // AsyncTask를 쓰게 되면 리턴타입이 생길수없다 (대부분 기본적으로(void)씀 쓰레드도 마찬가지)
+    // 리턴타입을 쓰면 과정없이 결과가 바로 return이 되버린다.
+    // 옭기는 과정에서 Task.newTask를 하면 바로 하나의 Task가 생성할수 있겠끔 static을 달아준다
+
+    // 재사용하기 위해서는 String url 처럼 넘겨주는 인자와 처리가 끝나고나서 아래쪽에 있는 textView처럼 호출되는 인자를 분리해야한다
+    // 내가 넘겨주는곳에 결과처리함수 , url빼낼수있는 함수 2가지를 만든다
+    //todo final 써준 이유 ? 이너클래스에서 final이 아니면 지역변수를 바로 못쓴다. new 를해줘서 이너 클래스를 만들어줬는데
+    //todo 이너클래스에서 인터페이스의 메소드를 호출할 때는 final을 붙여줘야한다 . 보통의경우가 아니라 쓰레드의 경우일때만 ..
+    public static void newTask(final TaskInterface taskInterface) {
+
+        new AsyncTask<String, Void, String>() {
+            // 백그라운드 처리 함수
+
+            @Override
+            protected String doInBackground(String... params) {
+                String result = "";
+                try {
+                    // getData 함수로 데이터를 가져온다.
+                    result = getData(params[0]);
+                    Log.i("Network", result);
+                } catch (Exception e) {
+                    //  todo 여기인가 ? -> 구지 토스트를 띄워줄 필요가 없다 e.printStackTrace() 가 콘솔창에 로그를 띄워준다
+                    e.printStackTrace();
+                    // todo 여기인가 ? -> 구지 토스트를 띄워줄 필요가 없다 e.printStackTrace() 가 콘솔창에 로그를 띄워준다
+                }
+
+                return result;
+            }
+
+
+            @Override
+            protected void onPostExecute(String result) {
+                // 값을 화면에 출력한다
+                taskInterface.resultExecute(result);
+            }
+
+        }.execute(taskInterface.getUrl());
+
+    }
+
+
+
+
+
 
 
     // 인자로 받은 url로 네트웍을 통해 데이터를 가져오는 함수 , 데이터의 형태는 무조건 string이다
