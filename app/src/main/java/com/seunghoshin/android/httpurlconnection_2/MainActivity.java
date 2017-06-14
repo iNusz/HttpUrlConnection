@@ -1,11 +1,18 @@
 package com.seunghoshin.android.httpurlconnection_2;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.seunghoshin.android.httpurlconnection_2.domain.Data;
 import com.seunghoshin.android.httpurlconnection_2.domain.Row;
@@ -13,7 +20,8 @@ import com.seunghoshin.android.httpurlconnection_2.domain.Row;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements TaskInterface {
+public class MainActivity extends AppCompatActivity
+        implements TaskInterface, OnMapReadyCallback {
 
     /* 기초정보
         url : http://openAPI.seoul.go.kr:8088/44596473463934693939657144686a/json/SearchPublicToiletPOIService/1/5/
@@ -59,10 +67,14 @@ public class MainActivity extends AppCompatActivity implements TaskInterface {
         // 셋팅
         listView.setAdapter(adapter);
 
+        //맵을 세팅
+        FragmentManager manager = getSupportFragmentManager();
+        SupportMapFragment mapFragment = (SupportMapFragment) manager.findFragmentById(R.id.mapView);
+        // 로드되면 onReady 호출하도록
+        mapFragment.getMapAsync(this);
 
-        // 최초 호출시 첫번째 집합을 불러온다
-        setPage(1, 10);
-        setUrl(pageBegin, pageEnd);
+
+
 
 
 //        try {
@@ -71,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements TaskInterface {
 //            String result = getData(url);
         // newTask를 통해서 try catch 문이 사라진다  todo 그러면 예외가 생기게되면 Toast를 넣어주고싶으면 ->그런데 서버문제를 토스트로 띄워주면 앱설계가 잘못된거다
 //        newTask(url);  -> newTask에서 인자값을 activity를 받는다
-        Remote.newTask(this);
+        //Remote.newTask(this); -> 아래로 옮김
 //        } catch (Exception e) {
 //            Log.e("Network", e.toString());
 //            Toast.makeText(this, "네트워크 오류 :" + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -133,9 +145,47 @@ public class MainActivity extends AppCompatActivity implements TaskInterface {
         //네트윅에서 가져온 데이터를 꺼내서 datas에 담아준다 .
         for (Row row : rows) {
             datas.add(row.getFNAME());
+
+            //row를 돌면서 화장실 하나하나의 좌표의 마커를 생성한다  , 여기서 LatLng은 double타입인데 row은 String이다
+            // 해결방법은 row에 들어가서 String을 바꿔준다
+            // todo ? 또다른 방법 ? , Data를 처음에 입력할때 double로 입력 ?  -> 받아오는게 json으로 String을 받는데 이때 Row에서 변환함으로써 원하는 값으로 받아온다.
+
+            MarkerOptions marker = new MarkerOptions();
+            LatLng tempcord = new LatLng(row.getY_WGS84(), row.getX_WGS84());
+            marker.position(tempcord);
+            // row에 getFNAME으로 썻다
+            marker.title(row.getFNAME());
+
+            // todo listview 항목을 눌렸을 때 지도가 같이 이동하게끔 만들어주기 !
+            // 지도에 마커 등록
+            mymap.addMarker(marker);
         }
+
+
+
+        // onMapReady가 끝나면 이쪽 함수 (resultExecute)가 실행되므로 여기에 넣어줘야한다
+        //지도 컨트롤
+        LatLng sinsa = new LatLng(37.516066, 127.019361);
+        mymap.moveCamera(CameraUpdateFactory.newLatLngZoom(sinsa, 10));
+
         // 그리고 adapter를 갱신해준다
         adapter.notifyDataSetChanged();
+
     }
 
+
+    GoogleMap mymap;
+    // getMapAsync 을 해주면 아래가 실행된다
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mymap = googleMap;
+
+        // 최초 호출시 첫번째 집합을 불러온다
+        setPage(1, 10);
+        setUrl(pageBegin, pageEnd);
+        Remote.newTask(this);
+
+
+
+    }
 }

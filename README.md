@@ -271,6 +271,276 @@ public class MainActivity extends AppCompatActivity implements TaskInterface{
 
 
 
+<br/>
+
+
+
+## API
+
+
+
+서울시 공공화장실 위치를 제공해주는 API를 사용해보자
+
+
+
+
+<br/>
+
+
+
+
+##### setPage
+
+
+페이지를 셋팅 해준다
+
+
+```java
+private void setPage(int page , int offset){
+        pageEnd = page * PAGE_OFFSET; // 마지막 페이지
+        pageBegin = pageEnd - PAGE_OFFSET+1; // 첫 시작 페이지
+    }
+```
+
+
+
+
+##### setUrl
+
+
+
+
+newTask가 호출 되기전에 url을 완성한다
+
+
+
+
+```java
+    private void setUrl(int begin, int end){
+        url = URL_PREFIX+ URL_CERT + URL_MID + begin + "/" + end ;
+    }
+```
+
+
+
+
+
+<br/>
+
+
+
+
+##### Convert Json to java Pojo Classes
+
+
+
+
+```
+http://pojo.sodhanalibrary.com/ 에 접속해 Url을 붙여넣은 뒤 Pojo클래스를 만들어 준다.
+```
+
+
+
+
+##### gson
+
+
+
+
+자바객체를 Json 표현식으로 변환
+
+
+
+
+```
+http://search.maven.org/#artifactdetails%7Ccom.google.code.gson%7Cgson%7C2.8.1%7C
+
+위의 링크에 접속해서 gson 을 사용하자.
+```
+
+
+
+
+
+그 후에 build.gradle(Module:app)에 가서 아래를 추가해준다.
+
+
+
+만약 자동으로 그래들을 업데이트 하고 싶으면 * 을 쓰면 된다 .
+
+
+
+예를 들어 gson:gson:2.*
+
+
+
+
+
+```gradle
+compile 'com.google.code.gson:gson:2.8.1'
+```
+
+
+
+
+##### 쓰는 방법
+
+
+
+```java
+        Gson gson = new Gson();
+
+        // 1. json String -> Class 로 변환
+        Data data = gson.fromJson(jsonString, Data.class);
+
+        // 2. class를 -> json String 으로 변환 , 총개수를 화면에 셋팅
+        textView.setText("총 개수:" + data.getSearchPublicToiletPOIService().getList_total_count());
+
+        // 건물의 이름을 listView에 셋팅  (찾아가보면 POI안에 ROW안에 있다)
+
+        Row rows[] = data.getSearchPublicToiletPOIService().getRow();
+
+        //네트윅에서 가져온 데이터를 꺼내서 datas에 담아준다 .
+        for (Row row : rows) {
+            datas.add(row.getFNAME());
+        }
+        // 그리고 adapter를 갱신해준다
+        adapter.notifyDataSetChanged();
+```
+
+
+
+
+## ListView
+
+
+건물이름을 출력 해보자.
+
+
+
+##### adapter
+
+
+
+아답터에서 사용할 공간을 만들고 아답터를 만들어 셋팅해준다.
+
+
+final을 해주면 new를 통해서 datas에 들어올 방법이 없다. 메모리공간(datas)은 바뀔수없다.
+
+
+데이터를 빼고 넣고 할때 notify해주면 변경사항이 반영된다.
+
+
+```java
+final List<String> datas = new ArrayList<>();
+        // 데이터 - 위에서 공간 할당
+        // 아답터
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,datas);
+        // 셋팅
+        listView.setAdapter(adapter);
+```
+
+
+
+
+## GoogleMap
+
+구글 맵이랑 리스트랑 같이 띄워보자.
+
+
+##### API key 가져오기
+
+
+
+```
+https://console.developers.google.com 에 들어가 key를 받아온다.
+```
+
+
+
+받아온 다음에 Manifest에 다음을 추가 해준다.
+
+
+
+```xml
+<meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="(API key값 입력 ! )"/>
+```
+
+
+그 후에 원활한 지도 사용을 위해 xml에 들어가 태그 이름을 바꿔준다.
+
+
+
+```xml
+<com.google.android.gms.maps.MapView/>
+
+아래처럼 변환
+
+<fragment...    class="com.google.android.gms.maps.SupportMapFragment"/>
+```
+
+
+
+MainActivity에 OnMapReadyCallback을 implement 해준다 .
+
+
+onCreate에 코드를 작성한다.
+
+
+
+```java
+        //맵을 세팅
+        FragmentManager manager = getSupportFragmentManager();
+        SupportMapFragment mapFragment = (SupportMapFragment) manager.findFragmentById(R.id.mapView);
+        // 로드되면 onReady 호출하도록
+        mapFragment.getMapAsync(this);
+```
+
+<br/>
+
+
+
+## Marker 찍기
+
+
+resultExecute 메소드에서 다음의 코드를 작성한다
+
+
+```java
+        //네트윅에서 가져온 데이터를 꺼내서 datas에 담아준다 .
+        for (Row row : rows) {
+            datas.add(row.getFNAME());
+
+            //row를 돌면서 화장실 하나하나의 좌표의 마커를 생성한다  , 여기서 LatLng은 double타입인데 row은 String이다
+            // 해결방법은 row에 들어가서 String을 바꿔준다 todo ? 또다른 방법 ? , Data를 처음에 입력할때 double로 입력 ?
+
+            MarkerOptions marker = new MarkerOptions();
+            LatLng tempcord = new LatLng(row.getY_WGS84(), row.getX_WGS84());
+            marker.position(tempcord);
+            // row에 getFNAME으로 썻다
+            marker.title(row.getFNAME());
+
+            // 지도에 마커 등록
+            mymap.addMarker(marker);
+        }
+
+
+
+        // onMapReady가 끝나면 이쪽 함수 (resultExecute)가 실행되므로 여기에 넣어줘야한다
+        //지도 컨트롤
+        LatLng sinsa = new LatLng(37.516066, 127.019361);
+        mymap.moveCamera(CameraUpdateFactory.newLatLngZoom(sinsa, 10));
+```
+
+
+
+
+
+<br/>
+
+
 ## Android Emulator
 
 
@@ -281,6 +551,14 @@ Thread안에서 HttpUrlConnection을 통해서 서버에 접속해 데이터를 
 
 
 TextView로 값을 받아와 화면에 출력
+
+
+
+Json으로 10개의 항목을 출력
+
+
+
+listView로 건물명을 10개의 항목을 출력
 
 
 

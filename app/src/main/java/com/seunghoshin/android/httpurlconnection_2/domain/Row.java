@@ -19,9 +19,9 @@ public class Row {
 
     private String CENTER_X1;
 
-    private String Y_WGS84;
+    private double Y_WGS84;
 
-    private String X_WGS84;
+    private double X_WGS84;
 
     private String ANAME;
 
@@ -81,19 +81,19 @@ public class Row {
         this.CENTER_X1 = CENTER_X1;
     }
 
-    public String getY_WGS84() {
+    public double getY_WGS84() {
         return Y_WGS84;
     }
 
-    public void setY_WGS84(String Y_WGS84) {
+    public void setY_WGS84(double Y_WGS84) {
         this.Y_WGS84 = Y_WGS84;
     }
 
-    public String getX_WGS84() {
+    public double getX_WGS84() {
         return X_WGS84;
     }
 
-    public void setX_WGS84(String X_WGS84) {
+    public void setX_WGS84(double X_WGS84) {
         this.X_WGS84 = X_WGS84;
     }
 
